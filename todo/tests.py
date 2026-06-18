@@ -27,3 +27,27 @@ class TaskModelTestCase(TestCase):
         self.assertEqual(task.title, "task2")
         self.assertFalse(task.completed)
         self.assertEqual(task.due_at, None)
+
+    def test_overdue_future1(self):
+        due = timezone.make_aware(datetime(2024, 6, 30, 23, 59, 59))
+        current = timezone.make_aware(datetime(2024, 6, 30, 0, 0, 0))
+        task = Task(title="Task1", due_at=due)
+        task.save()
+
+        self.assertFalse(task.is_overdue(current))
+
+    def test_overdue_future2(self):
+        due = timezone.make_aware(datetime(2024, 6, 30, 23, 59, 59))
+        current = timezone.make_aware(datetime(2024, 7, 1, 0, 0, 0))
+        task = Task(title="Task1", due_at=due)
+        task.save()
+
+        self.assertTrue(task.is_overdue(current))
+
+    def test_overdue_future3(self):
+        due = None
+        current = timezone.make_aware(datetime(2024, 7, 1, 0, 0, 0))
+        task = Task(title="Task1", due_at=due)
+        task.save()
+
+        self.assertFalse(task.is_overdue(current))
